@@ -1,0 +1,8 @@
+/vendor
+/resources/vendor
+/node_modules
+/wetty/node_modules
+/public/build
+/.env
+/docker-compose.yml
+/storage/ssh_config

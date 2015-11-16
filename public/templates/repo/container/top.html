@@ -1,0 +1,29 @@
+<dt-spinner ng-if="!top"></dt-spinner>
+<table class="table table-hover" ng-if="top">
+    <thead>
+        <tr>
+            <th>USER</th>
+            <th>PID</th>
+            <th>%MEM</th>
+            <th>%CPU</th>
+            <th>START</th>
+            <th>TIME</th>
+            <th>COMMAND</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="process in top track by $index">
+            <td>{{ process['USER'] }}</td>
+            <td>{{ process['PID'] }}</td>
+            <td>{{ process['%MEM'] }}</td>
+            <td>{{ process['%CPU'] }}</td>
+            <td>{{ process['START'] }}</td>
+            <td>{{ process['TIME'] }}</td>
+            <td>{{ process['COMMAND'] }}</td>
+        </tr>
+    </tbody>
+</table>
+<div class="modal-footer">
+    <div class="pull-left" dt-autorefresh="refresh()"></div>
+    <button class="btn btn-default" ng-click="$close()">Close</button>
+</div>

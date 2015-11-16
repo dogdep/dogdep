@@ -1,0 +1,56 @@
+php:
+  build: docker/php
+  volumes:
+   - ".:/var/www"
+   - "./docker/php/init.sh:/init.sh"
+  links:
+   - mysql
+
+web:
+  image: datadoglt/nginx-laravel
+  ports:
+   - "8888:80"
+  volumes:
+     - ".:/var/www"
+     - "./docker/nginx/nginx.conf:/etc/nginx/sites-enabled/laravel.conf"
+  links:
+   - php
+  environment:
+    VIRTUAL_HOST: dogdep.dev
+
+artisan:
+  build: docker/php
+  working_dir: /var/www
+  command: php /var/www/artisan queue:listen --tries=2 --timeout=360
+  volumes:
+   - ".:/var/www"
+  links:
+   - mysql
+
+mysql:
+  image: mariadb
+  env_file: .env
+  hostname: mysql
+  ports:
+   - "3308:3306"
+
+webtools:
+  image: datadoglt/webtools
+  volumes_from: ["php"]
+  environment:
+    GULP_TASK: watch
+
+proxy:
+  image: jwilder/nginx-proxy
+  env_file: .env
+  ports:
+    - "80:80"
+
+wetty:
+  build: wetty
+  command: sh /app/run.sh
+  ports:
+    - "4000:4000"
+  volumes:
+    - "./wetty:/app"
+  env_file: .env

@@ -1,0 +1,8 @@
+<dt-spinner ng-if="log == undefined"></dt-spinner>
+
+<pre ng-if="log" dt-scroll-bottom class="scrollable" data-ng-bind-html="log"></pre>
+
+<div class="modal-footer">
+    <div class="pull-left" dt-autorefresh="refresh()"></div>
+    <button class="btn btn-default" ng-click="$close()">Close</button>
+</div>

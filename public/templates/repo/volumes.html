@@ -1,0 +1,42 @@
+
+<form method="post">
+    <div class="row">
+        <div class="form-group col-md-5">
+            <input class="form-control" id="container" ng-model="volume.container" placeholder="Container" type="text" required>
+        </div>
+
+        <div class="form-group col-md-6">
+            <input class="form-control" id="volume" ng-model="volume.volume" placeholder="Volume path" type="text" required>
+            <span class="help-text">
+                Special paths:
+                <a ng-click="volume.volume='bower'" class="pointer">Bower cache</a>
+                <a ng-click="volume.volume='composer'" class="pointer">Composer cache</a>
+                <a ng-click="volume.volume='npm'" class="pointer">NPM cache</a>
+            </span>
+        </div>
+
+        <div class="col-md-1">
+            <button ng-click="save()" class="btn btn-block btn-success"><i class="fa fa-plus"></i></button>
+        </div>
+    </div>
+</form>
+
+<ul class="list-group list-commands">
+    <li ng-repeat="volume in volumes" class="list-group-item">
+        <div class="row">
+            <div class="col-xs-5">
+                <strong class="text-muted">Volume:</strong>
+                <div>{{ volume.volume }}</div>
+            </div>
+            <div class="col-xs-6">
+                <strong class="text-muted">On container:</strong>
+                <div>{{ volume.container }}</div>
+            </div>
+            <div class="col-md-1 text-right col-buttons">
+                <a class="btn btn-link" ng-click="remove(volume)" tooltip="Delete">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+        </div>
+    </li>
+</ul>

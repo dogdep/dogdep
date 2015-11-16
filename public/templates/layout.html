@@ -1,0 +1,53 @@
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" ui-sref="user.index">
+                <object height="40px" data="/build/img/logo.svg" type="image/svg+xml"></object>
+            </a>
+        </div>
+
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li><a ui-sref="user.index">New project</a></li>
+            </ul>
+
+            <div dt-logout></div>
+        </div>
+    </div>
+</nav>
+
+<div class="container container-main">
+    <div class="row">
+        <div class="col-md-3 sidebar">
+            <form action="">
+                <input type="text" class="form-control" ng-model="filter.name" placeholder="Filter projects"/>
+                <span class="fa fa-arrow-right form-control-feedback"></span>
+            </form>
+            <ul class="nav">
+                <li ng-repeat="project in projects|filter:filter as results track by project.id">
+                    <a ng-class="{active: isActive(project)}" ui-sref="user.repo.releases({id: project.id})">
+                        {{ project.group ? project.group + ' /' : '' }}  {{ project.name }}
+                        <span ng-if="project.releases.length" class="badge pull-right">{{ project.releases.length }}</span>
+                    </a>
+                </li>
+                <li ng-if="!results.length">
+                    <span class="text-muted">No projects found...</span>
+                </li>
+            </ul>
+
+            <a class="btn btn-link btn-block" ui-sref="user.index">
+                <i class="fa fa-plus"></i> Add new project
+            </a>
+
+        </div>
+        <div class="col-md-9" ui-view>
+
+        </div>
+    </div>
+</div>

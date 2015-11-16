@@ -1,0 +1,156 @@
+<!--<div dt-autorefresh="refreshReleases()" class="pull-right"></div>-->
+
+<br><br>
+
+<div ng-if="releases.$resolved && !releases.length" class="release">
+    <div class="row release-info">
+        <div class="col-xs-12 text-center">
+            <p class="text-muted text-lg">No releases yet.</p>
+            <a ui-sref="user.repo.commits({id: project.id})">Create new release</a>.
+        </div>
+    </div>
+</div>
+
+<script type="text/ng-template" id="commitPopup.html">
+    <div class="text-muted" am-time-ago="release.commit.date">asdasd</div>
+    <div>{{release.commit.message}}</div>
+</script>
+
+<div class="release" ng-repeat="release in releases track by release.id">
+    <div class="row">
+        <div class="col-md-1 middle">
+            <i class="fa fa-fw fa-ship fa-3x"></i>
+        </div>
+        <div class="col-md-2">
+            <strong>Release:</strong>
+            <div>
+                <a  popover-template="'commitPopup.html'" popover-title="{{release.commit.short_hash}}" popover-trigger="mouseenter">
+                    {{ release.id }}
+                    <span ng-if="release.commit.short_hash!=release.id">
+                        / {{ release.commit.short_hash }}
+                    </span>
+                </a>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <strong>Containers:</strong>
+            <div>
+                <span class="label label-{{ release.statusClass }}">{{ release.status }}</span>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <strong>Containers:</strong>
+            <div>
+                <span class="label label-{{ release.containerStatusClass }}">{{ release.containerStatus }}</span>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <strong>Date:</strong>
+            <div am-time-ago="release.date"></div>
+        </div>
+        <div class="col-md-3 text-right">
+            <a class="btn btn-danger" ng-click="manager.destroy(release)" tooltip="Remove release">
+                <i class="fa fa-times"></i>
+            </a>
+            <a class="btn btn-info" ng-click="manager.start(release)" tooltip="Run containers">
+                <i class="fa fa-play"></i>
+            </a>
+            <a class="btn btn-info" ng-click="manager.stop(release)" tooltip="Stop containers">
+                <i class="fa fa-stop"></i>
+            </a>
+            <div class="btn-group" dropdown>
+                <a class="btn btn-primary dropdown-toggle" href dropdown-toggle><i class="fa fa-cogs"></i></a>
+                <ul class="dropdown-menu pull-right">
+                    <li>
+                        <a ui-sref="user.repo.releases.details.log({release: release.id})" class="pointer"><i class="fa fa-fw fa-rss"></i> Release log</a>
+                    </li>
+                    <li>
+                        <a ui-sref="user.repo.releases.details.config({release: release.id})" class="pointer"><i class="fa fa-fw fa-list"></i> Release config</a>
+                    </li>
+                    <li ng-repeat="command in project.commands">
+                        <a ng-click="manager.runCommand(release, command)" class="pointer">
+                            <i class="fa fa-bolt fa-fw"></i> {{ command.command }}
+                        </a>
+                    </li>
+                    <li>
+                        <a ng-click="manager.runChecks(release)" class="pointer">
+                            <i class="fa fa-bolt fa-fw"></i> Run checks
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="release-containers">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Image</th>
+                    <th>Status</th>
+                    <th>Ports</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="container in release.containers track by container.id">
+                    <td class="col-min">{{ container.name }}</td>
+                    <td class="col-min">{{ container.image.repository }}:{{ container.image.tag }}</td>
+                    <td>
+                        <span ng-if="container.status.Running">Up</span>
+                        <span ng-if="!container.status.Running">Exit code: {{ container.status.ExitCode }}</span>
+                    </td>
+                    <td class="col-min">
+                        <span ng-repeat="port in container.ports">
+                            <a ng-href="http://{{ container.env.VIRTUAL_HOST }}" target="_blank" class="label label-success" ng-if="container.env.VIRTUAL_HOST">
+                                {{ port.private + ':' + port.public }}
+                            </a>
+
+                            <a ng-href="{{ port.url }}" target="_blank" class="label label-success" ng-if="port.public && !container.env.VIRTUAL_HOST">
+                                {{ port.private + ':' + port.public }}
+                            </a>
+
+                            <span class="label label-default" ng-if="!port.public">
+                                {{ port.private }}
+                            </span>
+                        </span>
+                        </td>
+                        <td class="col-min text-right">
+                            <div class="btn-group" dropdown>
+                                <a class="btn btn-sm btn-link" href dropdown-toggle><i class="fa fa-cogs"></i></a>
+                                <ul class="dropdown-menu pull-right">
+                                    <li>
+                                        <a ui-sref="user.repo.releases.container.log({id: project.id, container: container.id})" class="pointer">
+                                            <i class="fa fa-rss"></i> Logs
+                                        </a>
+                                        <a ui-sref="user.repo.releases.container.top({id: project.id, container: container.id})" class="pointer" ng-if="container.status.Running">
+                                            <i class="fa fa-server"></i> Top
+                                        </a>
+                                        <a ui-sref="user.repo.releases.container.inspect({id: project.id, container: container.id})" class="pointer">
+                                            <i class="fa fa-search"></i> Inspect
+                                        </a>
+                                        <a ui-sref="user.repo.releases.container.terminal({id: project.id, container: container.id})" class="pointer" ng-if="container.status.Running">
+                                            <i class="fa fa-terminal"></i> Terminal
+                                        </a>
+                                        <a ng-click="manager.stopContainer(container)" class="pointer" ng-if="container.status.Running">
+                                            <i class="fa fa-stop"></i> Stop
+                                        </a>
+                                        <a ng-click="manager.restartContainer(container)" class="pointer">
+                                            <i class="fa fa-refresh"></i> Restart
+                                        </a>
+                                        <a ng-click="manager.removeContainer(container)" class="pointer">
+                                            <i class="fa fa-times"></i> Remove
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

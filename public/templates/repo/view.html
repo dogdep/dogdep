@@ -1,0 +1,25 @@
+
+<ul class=" nav nav-tabs-horizontal nav-tabs text-center">
+    <li ng-class="{active: $state.is('user.repo.releases')}">
+        <a ui-sref="user.repo.releases({id: project.id})"><i class="fa fa-fw fa-list"></i> Releases</a>
+    </li>
+    <li ng-class="{active: $state.is('user.repo.commits')}">
+        <a ui-sref="user.repo.commits({id: project.id})"><i class="fa fa-fw fa-code-fork"></i> Commits</a>
+    </li>
+    <li ng-class="{active: $state.is('user.repo.settings')}">
+        <a ui-sref="user.repo.settings({id: project.id})"><i class="fa fa-fw fa-cogs"></i> Settings</a>
+    </li>
+    <li ng-class="{active: $state.is('user.repo.commands')}">
+        <a ui-sref="user.repo.commands({id: project.id})"><i class="fa fa-fw fa-bolt"></i> Commands</a>
+    </li>
+    <li ng-class="{active: $state.is('user.repo.volumes')}">
+        <a ui-sref="user.repo.volumes({id: project.id})"><i class="fa fa-fw fa-hdd-o"></i> Volumes</a>
+    </li>
+    <li ng-class="{active: $state.is('user.repo.checks')}">
+        <a ui-sref="user.repo.checks({id: project.id})"><i class="fa fa-fw fa-bar-chart"></i> Checks</a>
+    </li>
+</ul>
+
+<div class="ui-view-container">
+    <div ui-view class="anim-in-out anim-slide-below-fade" data-anim-speed="500" data-anim-sync="true"></div>
+</div>

@@ -1,0 +1,86 @@
+
+<form method="post" class="form-horizontal">
+
+    <div class="form-group">
+        <label for="container" class="col-sm-3 control-label">Container</label>
+        <div class="col-sm-7">
+            <input class="form-control" id="container" ng-model="check.container" placeholder="Container" type="text" required/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="type" class="col-sm-3 control-label">Type</label>
+        <div class="col-sm-7">
+            <select class="form-control" id="type" ng-model="check.type">
+                <option value="http">Http</option>
+                <option value="command">Command</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="slack_channel" class="col-sm-3 control-label">Slack notification</label>
+        <div class="col-sm-7">
+            <input class="form-control" id="slack_channel" ng-model="check.params.slack" placeholder="Channel ID" type="text"/>
+            <span class="help-text text-muted">Can be a channel or private group. Can be an encoded ID, or a name.</span>
+        </div>
+    </div>
+
+    <div ng-if="check.type=='http'">
+        <div class="form-group">
+            <label for="http_text" class="col-sm-3 control-label">Text to find (regex)</label>
+            <div class="col-sm-7">
+                <input class="form-control" id="http_text" ng-model="check.params.text" placeholder="Text must be in page" type="text"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="http_url" class="col-sm-3 control-label">Url to check</label>
+            <div class="col-sm-7">
+                <input class="form-control" id="http_url" ng-model="check.params.url" placeholder="/" type="text"/>
+            </div>
+        </div>
+    </div>
+
+    <div ng-if="check.type=='command'">
+        <div class="form-group">
+            <label for="http_text" class="col-sm-3 control-label">Text to find (regex)</label>
+            <div class="col-sm-7">
+                <input class="form-control" id="command" ng-model="check.params.command" placeholder="/bin/yes" type="text"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-7">
+            <button ng-click="save()" class="btn btn-success"><i class="fa fa-plus"></i> Add</button>
+        </div>
+    </div>
+</form>
+
+<h4>Current checks:</h4>
+<hr/>
+
+<ul class="list-group list-commands">
+    <li ng-repeat="check in checks track by check.id" class="list-group-item">
+        <div class="row">
+            <div class="col-xs-2">
+                <strong class="text-muted">Type:</strong>
+                <div>{{ check.type }}</div>
+            </div>
+            <div class="col-xs-2">
+                <strong class="text-muted">On container:</strong>
+                <div>{{ check.container }}</div>
+            </div>
+            <div class="col-xs-7">
+                <div class="pull-left" style="margin-right: 20px;" ng-repeat="(param, value) in check.params track by param">
+                    <strong class="text-muted">{{ param.charAt(0).toUpperCase() + param.slice(1) }}:</strong>
+                    <div>{{ value }}</div>
+                </div>
+            </div>
+            <div class="col-md-1 text-right col-buttons">
+                <a class="btn btn-link" ng-click="remove(check)" tooltip="Delete">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+        </div>
+    </li>
+</ul>

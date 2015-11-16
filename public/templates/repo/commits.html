@@ -1,0 +1,67 @@
+
+<div class="pull-right">
+    <button class="btn btn-default btn-sm" popover="{{hookPopover()}}"><i class="fa fa-info"></i> Auto update</button>
+    <div class="btn-group" dropdown>
+        <a class="btn btn-sm btn-default dropdown-toggle" href dropdown-toggle>{{ branch || 'all' }} <span class="caret"></span></a>
+        <ul class="dropdown-menu pull-right">
+            <li><a ui-sref="user.repo.commits({id: project.id, page: 1, branch: ''})" >all</a></li>
+            <li ng-repeat="branch in project.branches">
+                <a ui-sref="user.repo.commits({id: project.id, branch: branch, page: 1})" >{{ branch }}</a>
+            </li>
+        </ul>
+    </div>
+    <button class="btn btn-default btn-sm" ng-click="refreshCommits()"><i class="fa fa-refresh"></i> Refresh commits</button>
+</div>
+
+<h3>Commits</h3>
+<hr/>
+
+<div ng-if="!commits.length" class="release">
+    <div class="row release-info">
+        <div class="col-xs-12 text-center">
+            <p class="text-muted text-lg">No commits found.</p>
+        </div>
+    </div>
+</div>
+
+<ul class="list-group">
+
+    <li ng-repeat="commit in commits" class="list-group-item">
+      <div class="row">
+          <div class="col-xs-1 text-center">
+              <img ng-src="{{ commit.image }}" class="center-block img-rounded img-responsive" style="height: 40px"/>
+          </div>
+          <div class="col-xs-9">
+              <div>{{ commit.shortMessage }}</div>
+              <div class="row">
+                  <div class="col-xs-9 text-muted">
+                      {{ commit.shortHash }}
+                      <span tooltip="{{ commit.email }}">{{ commit.name }}</span>
+                  </div>
+                  <div class="col-xs-3 text-muted">
+                      <span am-time-ago="commit.date"></span>
+                  </div>
+              </div>
+          </div>
+          <div class="col-xs-2 text-right">
+              <div class="btn-group" dropdown>
+                  <a class="btn  btn-primary" ng-click="deploy(commit)">
+                      <i class="fa fa-chevron-right"></i>
+                  </a>
+                  <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
+                      <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu pull-right" role="menu">
+                      <li><a href ng-click="deploy(commit, true)">Shared release</a></li>
+                  </ul>
+              </div>
+          </div>
+      </div>
+    </li>
+</ul>
+
+
+<ul class="pager" ng-if="commits.length">
+    <li><a ui-sref="user.repo.commits({page: prevPage()})" ng-if="prevPage()">Previous</a></li>
+    <li><a ui-sref="user.repo.commits({page: nextPage()})">Next</a></li>
+</ul>

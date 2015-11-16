@@ -1,0 +1,47 @@
+
+<form method="post">
+    <div class="row">
+        <div class="form-group col-md-3">
+            <select class="form-control" ng-model="command.type">
+                <option value="post-release">Post Release</option>
+                <option value="one-off">One-off</option>
+            </select>
+        </div>
+        <div class="form-group col-md-3">
+            <input class="form-control" id="container" ng-model="command.container" placeholder="Container" type="text"/>
+        </div>
+        <div class="form-group col-md-5">
+            <input class="form-control" type="text" id="command" ng-model="command.command" placeholder="Command"/>
+        </div>
+        <div class="col-md-1">
+            <button ng-click="saveCommand()" class="btn btn-block btn-success"><i class="fa fa-plus"></i></button>
+        </div>
+    </div>
+</form>
+
+<ul class="list-group list-commands" ng-model="commands" as-sortable="sortableOptions">
+    <li ng-repeat="command in commands" as-sortable-item class="list-group-item">
+        <div class="row">
+            <div class="col-md-1">
+                <a href as-sortable-item-handle class="btn btn-link  text-default"><i class="fa fa-2x fa-arrows fa-fw"></i></a>
+            </div>
+            <div class="col-xs-2">
+                <strong class="text-muted">Run:</strong>
+                <div>{{ command.type }}</div>
+            </div>
+            <div class="col-xs-2">
+                <strong class="text-muted">On container:</strong>
+                <div>{{ command.container }}</div>
+            </div>
+            <div class="col-xs-6">
+                <strong class="text-muted">Command:</strong>
+                <div>{{ command.command }}</div>
+            </div>
+            <div class="col-md-1 text-right col-buttons">
+                <a class="btn btn-link" ng-click="remove(command)" tooltip="Delete">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+        </div>
+    </li>
+</ul>

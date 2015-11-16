@@ -1,0 +1,10 @@
+{
+    "name": "dockertty",
+    "version": "0.0.1",
+    "description": "Terminal for docker images",
+    "main": "app.js",
+    "dependencies": {
+        "websocket": "^1.0",
+        "pty.js": "git+https://github.com/terryschen/pty.js"
+    }
+}

@@ -1,0 +1,9 @@
+<div class="modal-header">
+    <a ng-click="$close()" class="close"><i class="fa fa-times"></i></a>
+    <h4 class="modal-title">
+        {{ project.group ? project.group + " /" : "" }} {{ project.name }}
+        <small>{{ release.id }}</small>
+    </h4>
+</div>
+
+<div ui-view='modal' class="modal-view"></div>

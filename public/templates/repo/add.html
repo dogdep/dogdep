@@ -1,0 +1,49 @@
+<div>
+
+    <h3 class="text-center">1. Add deployment key</h3>
+    <hr>
+    <div class="row">
+        <div class="col-md-offset-2 col-md-8 text-center">
+            <label for="publicKey">Deployment key (add this to your GIT)</label>
+            <textarea rows="4" id="publicKey" readonly class="form-control" onclick="this.select()">{{publicKey}}</textarea>
+        </div>
+    </div>
+
+    <h3 class="text-center">2. Add new project</h3>
+    <hr>
+
+    <form ng-submit="addProject()" class="form-horizontal">
+
+        <div class="form-group">
+            <label for="url" class="col-sm-3 control-label">Git URL</label>
+            <div class="col-sm-7">
+                <input class="form-control" type="text" id="url" placeholder="GIT URL..." ng-model="project.url"
+                       required title="This must be a valid GIT URL"
+                       pattern="(?:git|ssh|https?|git@[\w\.]+):(?:\/\/)?[\w\.@:\/~_-]+\.git\/?">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="group" class="col-sm-3 control-label">Group</label>
+            <div class="col-sm-7">
+                <input class="form-control" type="text" placeholder="repository group..." id="group"
+                        dt-project-group="project.url" title="This must be a alphanumeric value"
+                        ng-model="project.group" required pattern="[a-zA-Z0-9]*">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="name" class="col-sm-3 control-label">Name</label>
+            <div class="col-sm-7">
+                <input class="form-control" type="text" placeholder="repository name..." id="name"
+                       dt-project-name="project.url" title="This must be a alphanumeric value"
+                       ng-model="project.name" required pattern="[a-zA-Z0-9]+">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-7">
+                <button class="btn btn-success " type="submit">Add new project</button>
+            </div>
+        </div>
+
+    </form>
+</div>

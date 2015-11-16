@@ -1,0 +1,13 @@
+<div class="modal-header">
+    <a ng-click="$close()" class="close"><i class="fa fa-times"></i></a>
+    <h4 class="modal-title">{{ container.name }}</h4>
+</div>
+
+<ul class="nav nav-tabs-horizontal nav-tabs">
+    <li ng-if="container.status.Running" ng-class="{active: $state.is('user.repo.releases.container.top')}"><a ui-sref="user.repo.releases.container.top">Top</a></li>
+    <li ng-class="{active: $state.is('user.repo.releases.container.log')}"><a ui-sref="user.repo.releases.container.log">Logs</a></li>
+    <li ng-class="{active: $state.is('user.repo.releases.container.inspect')}"><a ui-sref="user.repo.releases.container.inspect">Inspect</a></li>
+    <li ng-if="container.status.Running" ng-class="{active: $state.is('user.repo.releases.container.terminal')}"><a ui-sref="user.repo.releases.container.terminal">Terminal</a></li>
+</ul>
+
+<div ui-view='modal' class="modal-view"></div>

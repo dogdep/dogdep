@@ -1,0 +1,63 @@
+<form class="form-horizontal" method="post">
+    <div class="form-group">
+        <label for="compose_yml" class="col-sm-4 control-label">Compose YML file:</label>
+        <div class="col-sm-6">
+            <input type="text" ng-model="project.compose_yml" placeholder="docker-compose.yml" id="compose_yml" class="form-control"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="domain" class="col-sm-4 control-label">Domain name:</label>
+        <div class="col-sm-6">
+            <input type="text" ng-model="project.domain" placeholder="{{project.name}}" id="domain" class="form-control"/>
+        </div>
+    </div>
+    <div class="row">
+        <h4 class="col-sm-9 col-sm-offset-4">Environment variables:</h4>
+    </div>
+    <hr>
+    <div class="form-group" ng-repeat="(k, v) in project.env">
+        <label for="url" class="col-sm-4 control-label">{{ k }}:</label>
+        <div class="col-sm-6">
+            <div class="input-group">
+                <input type="text" ng-model="project.env[k]" class="form-control"/>
+                <span class="input-group-btn">
+                    <button ng-click="removeEnv(k)" class="btn btn-default" tooltip="Remove"><i class="fa fa-times"></i></button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <hr ng-if="project.env.length()"/>
+    <div class="row">
+        <div class="col-sm-9 col-sm-offset-4">
+            <button class="btn btn-primary" ng-click="save()">Save</button>
+
+            <button class="btn btn-link" ng-click="addEnv()">
+                <i class="fa fa-plus"></i> Add new variable
+            </button>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="form-group">
+        <label for="name" class="col-sm-4 control-label">Name:</label>
+
+        <div class="col-sm-6">
+            <input type="text" disabled ng-model="project.name" id="name" class="form-control"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="url" class="col-sm-4 control-label">Url:</label>
+
+        <div class="col-sm-6">
+            <input type="text" disabled ng-model="project.url" id="url" class="form-control"/>
+        </div>
+    </div>
+</form>
+
+<hr/>
+
+<div class="text-center">
+    <button class="btn btn-link text-danger" ng-click="deleteProject()">Delete project</button>
+</div>
