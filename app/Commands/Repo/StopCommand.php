@@ -34,7 +34,7 @@ class StopCommand extends Command implements ShouldBeQueued, SelfHandling
         $this->release->status(Release::STATUS_STOPPING);
         $this->release->logger()->info(sprintf("Stopping release %s", $this->release->name()));
         foreach ($this->release->containers() as $c) {
-            $this->release->logger()->info(sprintf("Stopping container %s - %s", $c->getName(), $c->getId()));
+            $this->release->logger()->debug(sprintf("Stopping container %s", $c->getName()));
             $this->containers()->stop($c);
         }
         $this->release->status(Release::STATUS_STOPPED);

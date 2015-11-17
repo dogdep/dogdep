@@ -26,6 +26,7 @@ class StartCommand extends ComposeCommand
             $this->release->status(Release::STATUS_STARTED);
         } catch (\Exception $e) {
             $this->release->status(Release::STATUS_ERROR);
+            $this->release->logger()->error("Error while starting release: " . $e->getMessage());
             throw $e;
         }
     }

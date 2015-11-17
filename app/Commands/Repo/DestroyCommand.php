@@ -35,12 +35,12 @@ class DestroyCommand extends Command implements ShouldBeQueued, SelfHandling
             $this->release->logger()->info(sprintf("Destroying release %s", $this->release->name()));
             $containers = $this->release->containers();
             foreach ($containers as $c) {
-                $this->release->logger()->info(sprintf("Stopping container %s/%s", $c->getName(), $c->getId()));
+                $this->release->logger()->debug(sprintf("Removing container %s", $c->getName()));
                 $this->containers()->stop($c)->remove($c, true);
             }
 
             if (!$this->fs()->deleteDirectory($this->release->rootPath())) {
-                $this->release->logger()->info(sprintf("Failed to remove release dir %s", $this->release->path()));
+                $this->release->logger()->error(sprintf("Failed to remove release dir %s", $this->release->path()));
             }
 
             $this->release->logger()->info(sprintf("Release destroyed %s", $this->release->name()));

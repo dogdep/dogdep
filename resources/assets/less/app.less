@@ -76,9 +76,69 @@ body.login {
   width: 75%;
 }
 
+.scrollable-thin {
+  &::-webkit-scrollbar {
+    width: 2px;
+    height: 2px;
+  }
+
+  &::-webkit-scrollbar-corner  {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-track {
+    transition: opacity 0.5s ease-in-out;
+    background: transparent;
+    opacity: 0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    transition: opacity 0.5s ease-in-out;
+    opacity: 0;
+  }
+
+  &:hover {
+    &::-webkit-scrollbar-track {
+      transition: opacity 0.5s ease-in-out;
+      background: rgba(0,0,0,0.04);
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      transition: opacity 0.5s ease-in-out;
+      background: rgba(0,0,0,0.15);
+      border-radius: 4px;
+    }
+  }
+}
+
+pre {
+  background: #FDFDFD;
+  border-color: #E9E9E9;
+}
+
 .scrollable {
   overflow-y: scroll;
   max-height: 75vh;
+
+  &.scrollable-nowrap {
+    white-space: nowrap;
+  }
+
+
+  &.scrollable-sm {
+    max-height: 200px;
+  }
+
+  .msg-error {
+    color: @brand-danger;
+  }
+  .msg-warning {
+    color: @brand-warning;
+  }
+  .msg-debug {
+    color: #aaa;
+  }
 }
 
 

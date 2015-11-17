@@ -24,7 +24,7 @@
         <div class="col-md-2">
             <strong>Release:</strong>
             <div>
-                <a  popover-template="'commitPopup.html'" popover-title="{{release.commit.short_hash}}" popover-trigger="mouseenter">
+                <a popover-template="'commitPopup.html'" popover-title="{{release.commit.short_hash}}" popover-trigger="mouseenter">
                     {{ release.id }}
                     <span ng-if="release.commit.short_hash!=release.id">
                         / {{ release.commit.short_hash }}
@@ -35,13 +35,13 @@
         <div class="col-md-2">
             <strong>Containers:</strong>
             <div>
-                <span class="label label-{{ release.statusClass }}">{{ release.status }}</span>
+                <span class="label label-{{ statusClass(release.status) }}">{{ release.status }}</span>
             </div>
         </div>
         <div class="col-md-2">
             <strong>Containers:</strong>
             <div>
-                <span class="label label-{{ release.containerStatusClass }}">{{ release.containerStatus }}</span>
+                <span class="label label-{{ containerStatusClass(release.status) }}">{{ release.containerStatus }}</span>
             </div>
         </div>
         <div class="col-md-2">
@@ -84,7 +84,13 @@
 
     <hr>
 
-    <div class="release-containers">
+    <pre class="log scrollable scrollable-sm scrollable-nowrap scrollable-thin"  dt-scroll-bottom ng-if="release.status != 'STARTED'">
+        <span ng-repeat="log in release.log track by $index" class="msg-{{ log|level }}">
+            {{log}} <br>
+        </span>
+    </pre>
+
+    <div class="release-containers" ng-if="release.status == 'STARTED'">
         <table class="table">
             <thead>
                 <tr>

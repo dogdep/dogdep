@@ -1,8 +1,7 @@
 <?php namespace App\Model;
 
 use App\Docker\Exception\APIException;
-use App\Presentation\PresentableInterface;
-use App\Presentation\PresentableTrait;
+use App\Services\Pusher\ReleasePusher;
 use App\Traits\UsesFilesystem;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
@@ -13,12 +12,9 @@ use Monolog\Logger;
 
 /**
  * Class Release
- *
- * @method Presenter\ReleasePresenter present()
  */
-class Release implements PresentableInterface, Arrayable, JsonSerializable, Jsonable
+class Release implements Arrayable, JsonSerializable, Jsonable
 {
-    use PresentableTrait;
     use UsesFilesystem;
 
     const STATUS_UNKNOWN = "UNKNOWN";
@@ -35,7 +31,7 @@ class Release implements PresentableInterface, Arrayable, JsonSerializable, Json
     const STATUS_ERROR = "ERROR";
     const STATUS_BUILDING = "BUILDING";
 
-    const LOG_FORMAT = "[%datetime%] %level_name%: %message% %context% %extra%\n";
+    const LOG_FORMAT = "[%level_name%] %message%\n";
 
     /**
      * @var Logger
@@ -196,7 +192,7 @@ class Release implements PresentableInterface, Arrayable, JsonSerializable, Json
                 @chmod($this->path("RELEASE.status"), 0777);
             }
 
-            app("pusher")->trigger(["releases"], "repo-{$this->repo->id}", ['status'=>$set]);
+            $this->pusher()->push(['status'=>$set]);
         }
 
         $status = @file_get_contents($this->path('RELEASE.status'));
@@ -280,13 +276,18 @@ class Release implements PresentableInterface, Arrayable, JsonSerializable, Json
     public function logger()
     {
         if (!isset(self::$log[$this->name()])) {
-            $handler = new StreamHandler($this->path('release.log'));
-            $handler->setFormatter(new LineFormatter(self::LOG_FORMAT, null, false, true));
+            $file = new StreamHandler($this->path('release.log'));
+            $file->setFormatter(new LineFormatter(self::LOG_FORMAT, null, false, true));
 
-            self::$log[$this->name()] = new Logger("releaseLog", [$handler]);
+            self::$log[$this->name()] = new Logger("repo-{$this->repo->id}", [$file, $this->pusher()]);
         }
 
         return self::$log[$this->name()];
+    }
+
+    public function pusher()
+    {
+        return ReleasePusher::get($this);
     }
 
     public function ymlPath()
@@ -325,12 +326,11 @@ class Release implements PresentableInterface, Arrayable, JsonSerializable, Json
         return [
             'id' => $this->id(),
             'status' => $this->status(),
-            'statusClass' => $this->present()->statusClass(),
             'date' => $this->date()->format(DATE_ISO8601),
             'containerStatus' => $this->containerStatus(),
-            'containerStatusClass' => $this->present()->containerStatusClass(),
             'containers' => $this->containers(),
             'repo' => $this->repo(),
+            'log' => file_exists($this->path('release.log')) ? file($this->path('release.log')) : [],
             'commit' => !$commit ? null : [
                 'hash' => $commit->getHash(),
                 'short_hash' => $commit->getShortHash(),
@@ -358,7 +358,6 @@ class Release implements PresentableInterface, Arrayable, JsonSerializable, Json
      */
     public function toJson($options = 0)
     {
-
         return json_encode($this->toArray(), $options);
     }
 }

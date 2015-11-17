@@ -55,10 +55,12 @@ class DockerCompose
 
         $this->log($release, $process->getErrorOutput());
         $this->log($release, $process->getOutput());
-        $log->info(sprintf("Process exited with status %s", $process->getExitCode()));
 
         if (!$process->isSuccessful()) {
+            $log->err(sprintf("Process exited with status %s", $process->getExitCode()));
             throw new \RuntimeException("Failed to execute repo command: " . $process->getErrorOutput());
+        } else {
+            $log->info(sprintf("Process exited with status %s", $process->getExitCode()));
         }
     }
 
@@ -86,7 +88,7 @@ class DockerCompose
     {
         foreach (explode("\n", $output) as $line) {
             if (!empty($line)) {
-                $release->logger()->info($line);
+                $release->logger()->debug($line);
             }
         }
     }
