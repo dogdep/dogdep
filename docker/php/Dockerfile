@@ -1,7 +1,7 @@
-FROM datadoglt/php56
+FROM datadoglt/php70
 MAINTAINER "DataDog" <info@datadog.lt>
 
-ENV COMPOSER_VERSION "1.3.0rc1"
+ENV COMPOSER_VERSION "1.5.2"
 
 # Install git
 RUN yum install -y git tar && \

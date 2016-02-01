@@ -10,7 +10,7 @@ var replace = require('gulp-token-replace');
 var fs = require('fs');
 var ini = require('ini');
 var config = ini.parse(fs.readFileSync('./.env', 'utf-8'));
-var templateCache = require('gulp-angular-templatecache');
+var templateCache = require('gulp-templatecache');
 
 var paths = {
     vendor_scripts: [
@@ -47,7 +47,12 @@ var paths = {
 
 gulp.task('templates', [], function () {
     return gulp.src(paths.templates)
-        .pipe(templateCache("templates.js", {module: 'dp', root: '/templates'}))
+        .pipe(templateCache({
+            output: 'templates.js',
+            strip: 'public',
+            moduleName: 'dp',
+            minify: {}
+        }))
         .pipe(gulp.dest('public/build/js'));
 });
 

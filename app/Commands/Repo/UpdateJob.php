@@ -31,7 +31,7 @@ class UpdateJob extends Command implements SelfHandling, ShouldQueue
     public function handle(Pusher $pusher)
     {
         if ($this->repo->get()) {
-            $this->repo->get()->run('fetch', ['--all', '--prune']);
+            $this->repo->get()->run('fetch', ['origin', '+refs/heads/*:refs/heads/*', '--prune']);
             $pusher->trigger(['pulls'], 'repo-' . $this->repo->id, []);
         } else {
             $this->dispatch(new CloneCommand($this->repo));
