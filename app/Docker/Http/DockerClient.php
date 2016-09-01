@@ -4,6 +4,7 @@ namespace App\Docker\Http;
 
 use App\Docker\Http\Adapter\DockerAdapter;
 use GuzzleHttp\Client;
+use GuzzleHttp\Message\RequestInterface;
 
 class DockerClient extends Client
 {
@@ -95,4 +96,14 @@ class DockerClient extends Client
 
         return new self($config, $entrypoint, $context, $useTls);
     }
+
+    public function send(RequestInterface $request)
+    {
+        if (!$request->hasHeader('Host')) {
+            $request->setHeader('Host', 'localhost');
+        }
+        return parent::send($request);
+    }
+
+
 }

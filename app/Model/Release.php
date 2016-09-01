@@ -115,9 +115,7 @@ class Release implements Arrayable, JsonSerializable, Jsonable
         $containers = [];
 
         if (is_null($this->containers)) {
-            foreach ($manager->findAll(['all' => true]) as $container) {
-                $this->containers[] = $container;
-            }
+            $this->containers = $manager->findAll(['all' => true]);
         }
 
         foreach ($this->containers as $container) {

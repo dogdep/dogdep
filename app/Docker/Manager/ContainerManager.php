@@ -113,9 +113,11 @@ class ContainerManager
             throw $e;
         }
 
-        $container->setRuntimeInformations($response->json());
+        $json = json_decode($response->getBody(), true);
 
-        return $response->json();
+        $container->setRuntimeInformations($json);
+
+        return $json;
     }
 
     /**
