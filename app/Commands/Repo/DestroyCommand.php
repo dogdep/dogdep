@@ -45,7 +45,6 @@ class DestroyCommand extends Command implements ShouldBeQueued, SelfHandling
                 $this->release->logger()->error(sprintf("Failed to remove release dir %s", $this->release->path()));
             }
 
-            $this->release->logger()->info(sprintf("Release destroyed %s", $this->release->name()));
             $this->release->status(Release::STATUS_DESTROYED);
         } catch (\Exception $e) {
             $this->release->status(Release::STATUS_ERROR);
