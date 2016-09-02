@@ -1,0 +1,12 @@
+---
+ - name: INSTALL NPM
+   npm: path=/var/www/dogdep
+
+ - name: INSTALL BOWER
+   shell: bower --allow-root install chdir=/var/www/dogdep
+
+ - name: RUN GULP
+   shell: gulp chdir=/var/www/dogdep
+
+ - name: INSTALL NPM
+   npm: path=/var/www/dogdep/wetty

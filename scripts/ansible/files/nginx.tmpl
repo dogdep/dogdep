@@ -1,0 +1,133 @@
+{{ define "upstream" }}
+	{{ if .Address }}
+		server 127.0.0.1:{{ .Address.HostPort }};
+	{{ else }}
+		# {{ .Container.Name }}
+		server {{ .Container.IP }} down;
+	{{ end }}
+{{ end }}
+
+{{ range $host, $containers := groupByMulti $ "Env.VIRTUAL_HOST" "," }}
+
+upstream {{ $host }} {
+{{ range $container := $containers }}
+	{{ $addrLen := len $container.Addresses }}
+	{{/* If only 1 port exposed, use that */}}
+	{{ if eq $addrLen 1 }}
+		{{ $address := index $container.Addresses 0 }}
+		{{ template "upstream" (dict "Container" $container "Address" $address) }}
+	{{/* If more than one port exposed, use the one matching VIRTUAL_PORT env var, falling back to standard web port 80 */}}
+	{{ else }}
+		{{ $port := coalesce $container.Env.VIRTUAL_PORT "80" }}
+		{{ $address := where $container.Addresses "Port" $port | first }}
+		{{ template "upstream" (dict "Container" $container "Address" $address) }}
+	{{ end }}
+{{ end }}
+}
+
+{{ $default_host := or ($.Env.DEFAULT_HOST) "" }}
+
+{{/* Get the VIRTUAL_PROTO defined by containers w/ the same vhost, falling back to "http" */}}
+{{ $proto := or (first (groupByKeys $containers "Env.VIRTUAL_PROTO")) "http" }}
+
+{{/* Get the HTTPS_METHOD defined by containers w/ the same vhost, falling back to "redirect" */}}
+{{ $https_method := or (first (groupByKeys $containers "Env.HTTPS_METHOD")) "redirect" }}
+
+{{/* Get the first cert name defined by containers w/ the same vhost */}}
+{{ $certName := (first (groupByKeys $containers "Env.CERT_NAME")) }}
+
+{{/* Get the best matching cert  by name for the vhost. */}}
+{{ $vhostCert := (closest (dir "/etc/nginx/ssl") (printf "%s.crt" $host))}}
+
+{{/* vhostCert is actually a filename so remove any suffixes since they are added later */}}
+{{ $vhostCert := replace $vhostCert ".crt" "" -1 }}
+{{ $vhostCert := replace $vhostCert ".key" "" -1 }}
+
+{{/* Use the cert specifid on the container or fallback to the best vhost match */}}
+{{ $cert := (coalesce $certName $vhostCert) }}
+
+{{ $is_https := (and (ne $cert "") (exists (printf "/etc/nginx/ssl/%s.crt" $cert)) (exists (printf "/etc/nginx/ssl/%s.key" $cert))) }}
+
+{{ if $is_https }}
+
+{{ if eq $https_method "redirect" }}
+server {
+	server_name {{ $host }};
+	listen 80;
+	access_log /var/log/nginx/dogdep.access.log;
+	return 301 https://$host$request_uri;
+}
+{{ end }}
+
+server {
+	server_name {{ $host }};
+	listen 443 ssl http2;
+	access_log /var/log/nginx/dogdep.access.log;
+
+	ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+	ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA;
+
+	ssl_prefer_server_ciphers on;
+	ssl_session_timeout 5m;
+	ssl_session_cache shared:SSL:50m;
+
+	ssl_certificate /etc/nginx/ssl/{{ (printf "%s.crt" $cert) }};
+	ssl_certificate_key /etc/nginx/ssl/{{ (printf "%s.key" $cert) }};
+
+	{{ if (exists (printf "/etc/nginx/ssl/%s.dhparam.pem" $cert)) }}
+	ssl_dhparam {{ printf "/etc/nginx/ssl/%s.dhparam.pem" $cert }};
+	{{ end }}
+
+	add_header Strict-Transport-Security "max-age=31536000";
+
+	{{ if (exists (printf "/etc/nginx/vhost.d/%s" $host)) }}
+	include {{ printf "/etc/nginx/vhost.d/%s" $host }};
+	{{ else if (exists "/etc/nginx/vhost.d/default") }}
+	include /etc/nginx/vhost.d/default;
+	{{ end }}
+
+	location / {
+		proxy_pass {{ trim $proto }}://{{ trim $host }};
+		{{ if (exists (printf "/etc/nginx/htpasswd/%s" $host)) }}
+		auth_basic	"Restricted {{ $host }}";
+		auth_basic_user_file	{{ (printf "/etc/nginx/htpasswd/%s" $host) }};
+		{{ end }}
+                {{ if (exists (printf "/etc/nginx/vhost.d/%s_location" $host)) }}
+                include {{ printf "/etc/nginx/vhost.d/%s_location" $host}};
+                {{ else if (exists "/etc/nginx/vhost.d/default_location") }}
+                include /etc/nginx/vhost.d/default_location;
+                {{ end }}
+	}
+}
+
+{{ end }}
+
+{{ if or (not $is_https) (eq $https_method "noredirect") }}
+
+server {
+	server_name {{ $host }};
+	listen 80;
+	access_log /var/log/nginx/dogdep.access.log;
+
+	{{ if (exists (printf "/etc/nginx/vhost.d/%s" $host)) }}
+	include {{ printf "/etc/nginx/vhost.d/%s" $host }};
+	{{ else if (exists "/etc/nginx/vhost.d/default") }}
+	include /etc/nginx/vhost.d/default;
+	{{ end }}
+
+	location / {
+		proxy_pass {{ trim $proto }}://{{ trim $host }};
+		{{ if (exists (printf "/etc/nginx/htpasswd/%s" $host)) }}
+		auth_basic	"Restricted {{ $host }}";
+		auth_basic_user_file	{{ (printf "/etc/nginx/htpasswd/%s" $host) }};
+		{{ end }}
+                {{ if (exists (printf "/etc/nginx/vhost.d/%s_location" $host)) }}
+                include {{ printf "/etc/nginx/vhost.d/%s_location" $host}};
+                {{ else if (exists "/etc/nginx/vhost.d/default_location") }}
+                include /etc/nginx/vhost.d/default_location;
+                {{ end }}
+	}
+}
+
+{{ end }}
+{{ end }}

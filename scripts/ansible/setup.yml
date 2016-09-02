@@ -1,0 +1,42 @@
+---
+
+- hosts: webservers
+
+  vars:
+    user: www
+    group: www
+    mysql_users:
+      - { name: dogdep, password: "{{ database_password }}", privs: "*.*:ALL" }
+
+  pre_tasks:
+    - name: GROUP
+      group: name="{{ user }}" state=present
+      become: yes
+
+    - name: USER
+      user: name="{{ group }}" group="{{ group }}" groups="docker" state=present uid=1000
+      become: yes
+
+  roles:
+  - { role: datadog-galaxy.php70, become: true, tags: ["php"] }
+  - { role: datadog-galaxy.nginx, become: true, tags: ["nginx"] }
+  - { role: datadog-galaxy.mysql, become: true, tags: ["mysql"] }
+  - { role: datadog-galaxy.docker, become: true, tags: ["docker"] }
+
+  - role: datadog-galaxy.supervisord
+    become: true
+    tags: ["supervisord"]
+    services:
+    - name: queue_worker
+      command: php /var/www/dogdep/artisan queue:work --sleep=5 --tries=1 --timeout=1200
+      user: "{{ user }}"
+    - name: docker_gen
+      command: /usr/local/bin/docker-gen -notify service nginx restart -watch /var/www/dogdep/scripts/ansible/files/nginx.tmpl /etc/nginx/sites-enabled.d/docker.conf
+      user: "root"
+    - name: wetty
+      command: node /var/www/dogdep/wetty/app.js -p 4000
+      environment: WETTY_CERT_KEY=/etc/nginx/ssl/datajob.key,WETTY_CERT_CRT=/etc/nginx/ssl/datajob.crt,WETTY_HTTPS=true
+      user: "{{ user }}"
+
+  - { role: datadog-galaxy.nodejs, become: true, install: ["bower", "gulp"], tags: ["nodejs"] }
+  - { role: deploy, become: true, tags: ["deploy"] }

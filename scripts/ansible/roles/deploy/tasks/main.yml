@@ -1,0 +1,47 @@
+---
+
+  - name: INSTALL DEPENDENCIES
+    yum: name="{{ item }}" state=present
+    with_items:
+    - git
+    - gcc
+    - gcc-c++
+
+  - name: CLONE PROJECT
+    git: repo=https://github.com/dogdep/dogdep.git dest=/var/www/dogdep accept_hostkey=yes
+
+  - name: NGINX CONFIG
+    copy: src=dogdep.conf dest=/etc/nginx/sites-enabled.d/dogdep.conf
+    notify: reload nginx
+
+  - name: ENV FILE
+    template: src=.env.j2 dest=/var/www/dogdep/.env
+
+  - name: DEPLOY | INSTALL COMPOSER PHAR
+    shell: curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin
+    args:
+      creates: "/usr/local/bin/composer"
+
+  - name: DEPLOY | RUN COMPOSER INSTALL
+    shell: php /usr/local/bin/composer install --working-dir=/var/www/dogdep --no-dev --optimize-autoloader --no-interaction
+
+  - name: Change file owners (api)
+    file: group={{ group }} owner={{ user }} path=/var/www/dogdep recurse=yes
+
+  - name: Restore selinux context
+    shell: restorecon -R {{ item }}
+    when: ansible_selinux.status is defined and ansible_selinux.status == "enabled"
+    with_items:
+      - /var/www/dogdep
+
+  - include: build_assets.yml
+    tags: [assets]
+
+  - include: docker_gen.yml
+    tags: [docker-gen]
+
+  - name: SET FILE PERMISSIONS
+    shell: setfacl -Rm u:{{ user }}:rwx /var/www/dogdep/storage/
+
+  - name: SET DIR PERMISSIONS
+    shell: setfacl -Rdm u:{{ user }}:rwx /var/www/dogdep/storage/

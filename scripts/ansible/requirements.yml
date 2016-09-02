@@ -1,0 +1,6 @@
+ - src: datadog-galaxy.nginx
+ - src: datadog-galaxy.mysql
+ - src: datadog-galaxy.php70
+ - src: datadog-galaxy.nodejs
+ - src: datadog-galaxy.docker
+ - src: datadog-galaxy.supervisord
