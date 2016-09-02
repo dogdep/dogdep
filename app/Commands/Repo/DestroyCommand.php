@@ -2,6 +2,7 @@
 
 use App\Commands\Command;
 use App\Model\Release;
+use App\Services\DockerCompose;
 use App\Traits\ManagesDocker;
 use App\Traits\UsesFilesystem;
 use Illuminate\Contracts\Bus\SelfHandling;
@@ -32,11 +33,13 @@ class DestroyCommand extends Command implements ShouldBeQueued, SelfHandling
     {
         $this->release->status(Release::STATUS_DESTROYING);
         try {
-            $this->release->logger()->debug(sprintf("Stopping release %s", $this->release->name()));
-            $this->compose()->run($this->release, ['stop']);
+            if ($this->fs()->exists($this->release->path(DockerCompose::CONFIG))) {
+                $this->release->logger()->debug(sprintf("Stopping release %s", $this->release->name()));
+                $this->compose()->run($this->release, ['stop']);
 
-            $this->release->logger()->debug(sprintf("Remove release %s", $this->release->name()));
-            $this->compose()->run($this->release, ['rm', '-v', '-f']);
+                $this->release->logger()->debug(sprintf("Remove release %s", $this->release->name()));
+                $this->compose()->run($this->release, ['rm', '-v', '-f']);
+            }
 
             if (!$this->fs()->deleteDirectory($this->release->rootPath())) {
                 $this->release->logger()->error(sprintf("Failed to remove release dir %s", $this->release->path()));
