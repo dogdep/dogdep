@@ -10,7 +10,7 @@
   "require": {
     "laravel/framework": "5.1.*",
     "symfony/yaml": "^2.7.1",
-    "gitonomy/gitlib": "~0.1.7",
+    "gitonomy/gitlib": "~1.0.2",
     "predis/predis": "~1.0.1",
     "tymon/jwt-auth": "dev-develop",
     "laravel/socialite": "*",

@@ -4,7 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "22746219a3d2100167ae8e8a4f7fcba3",
+    "hash": "e0c2e831709e536a3373ba356bf98c3b",
+    "content-hash": "4182f546c5f27fb9c1bf2dc79a0288c2",
     "packages": [
         {
             "name": "barryvdh/laravel-ide-helper",
@@ -683,34 +684,36 @@
         },
         {
             "name": "gitonomy/gitlib",
-            "version": "v0.1.7",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gitonomy/gitlib.git",
-                "reference": "7a46107cfb8552b312101e0d5906e95d54d7ddc6"
+                "reference": "b4b916423a2e2da631cf3b3787beb9386a7b253c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gitonomy/gitlib/zipball/7a46107cfb8552b312101e0d5906e95d54d7ddc6",
-                "reference": "7a46107cfb8552b312101e0d5906e95d54d7ddc6",
+                "url": "https://api.github.com/repos/gitonomy/gitlib/zipball/b4b916423a2e2da631cf3b3787beb9386a7b253c",
+                "reference": "b4b916423a2e2da631cf3b3787beb9386a7b253c",
                 "shasum": ""
             },
             "require": {
-                "symfony/process": "~2.4"
+                "symfony/process": "^2.3|^3.0"
             },
             "require-dev": {
-                "psr/log": "~1"
+                "psr/log": "^1.0"
             },
             "suggest": {
                 "psr/log": "Add some log"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
             "autoload": {
-                "psr-0": {
-                    "Gitonomy\\Git": [
-                        "src/",
-                        "tests/"
-                    ]
+                "psr-4": {
+                    "Gitonomy\\Git\\": "src/Gitonomy/Git/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -731,7 +734,7 @@
             ],
             "description": "Library for accessing git",
             "homepage": "http://gitonomy.com",
-            "time": "2014-07-13 19:02:31"
+            "time": "2016-05-11 08:25:40"
         },
         {
             "name": "guzzle/guzzle",
@@ -826,6 +829,7 @@
                 "rest",
                 "web service"
             ],
+            "abandoned": "guzzlehttp/guzzle",
             "time": "2015-03-18 18:23:50"
         },
         {
